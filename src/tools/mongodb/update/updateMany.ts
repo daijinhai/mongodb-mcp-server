@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { CollOperationArgs, MongoDBToolBase } from "../mongodbTool.js";
 import type { ToolArgs, OperationType, ToolResult } from "../../tool.js";
+import type { Document } from "mongodb";
 import { checkIndexUsage } from "../../../helpers/indexCheck.js";
 import { zEJSON } from "../../args.js";
 
@@ -75,7 +76,7 @@ export class UpdateManyTool extends MongoDBToolBase {
             });
         }
 
-        const result = await provider.updateMany(database, collection, filter, update, {
+        const result = await provider.updateMany(database, collection, filter as Document, update, {
             upsert,
         });
 

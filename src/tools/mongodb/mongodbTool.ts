@@ -1,7 +1,7 @@
 import { z } from "zod";
 import type { OperationType, ToolArgs, ToolCategory } from "../tool.js";
 import { ToolBase } from "../tool.js";
-import type { NodeDriverServiceProvider } from "@mongosh/service-provider-node-driver";
+import type { MongoDbServiceProvider } from "../../common/serviceProvider.js";
 import type { CallToolResult } from "@modelcontextprotocol/sdk/types.js";
 import { ErrorCodes, MongoDBError } from "../../common/errors.js";
 import { LogId } from "../../common/logging/index.js";
@@ -22,7 +22,7 @@ export abstract class MongoDBToolBase extends ToolBase {
     protected server?: Server;
     static category: ToolCategory = "mongodb";
 
-    protected async ensureConnected(): Promise<NodeDriverServiceProvider> {
+    protected async ensureConnected(): Promise<MongoDbServiceProvider> {
         if (!this.session.isConnectedToMongoDB) {
             if (this.session.connectedAtlasCluster) {
                 throw new MongoDBError(

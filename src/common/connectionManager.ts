@@ -13,6 +13,8 @@ import {
     type ConnectionStringInfo,
     type AtlasClusterConnectionInfo,
 } from "./connectionInfo.js";
+import type { MongoDbServiceProvider } from "./serviceProvider.js";
+import { LegacyServiceProvider } from "./legacyServiceProvider.js";
 
 export type { ConnectionStringInfo, ConnectionStringAuthType, AtlasClusterConnectionInfo } from "./connectionInfo.js";
 
@@ -52,7 +54,7 @@ export class ConnectionStateConnected implements ConnectionState {
     public tag = "connected" as const;
 
     constructor(
-        public serviceProvider: NodeDriverServiceProvider,
+        public serviceProvider: MongoDbServiceProvider,
         public connectionStringInfo?: ConnectionStringInfo,
         public connectedAtlasCluster?: AtlasClusterConnectionInfo
     ) {}
@@ -162,7 +164,7 @@ export class ConnectionStateConnected implements ConnectionState {
 
 export interface ConnectionStateConnecting extends ConnectionState {
     tag: "connecting";
-    serviceProvider: Promise<NodeDriverServiceProvider>;
+    serviceProvider: Promise<MongoDbServiceProvider>;
     oidcConnectionType: OIDCConnectionAuthType;
     oidcLoginUrl?: string;
     oidcUserCode?: string;
@@ -290,7 +292,7 @@ export class MCPConnectionManager extends ConnectionManager {
             await this.disconnect();
         }
 
-        let serviceProvider: Promise<NodeDriverServiceProvider>;
+        let serviceProvider: Promise<MongoDbServiceProvider>;
         let connectionStringInfo: ConnectionStringInfo = { authType: "scram", hostType: "unknown" };
 
         try {
@@ -332,16 +334,24 @@ export class MCPConnectionManager extends ConnectionManager {
                 settings.atlas
             );
 
-            serviceProvider = NodeDriverServiceProvider.connect(
-                connectionInfo.connectionString,
-                {
-                    productDocsLink: "https://github.com/mongodb-js/mongodb-mcp-server/",
-                    productName: "MongoDB MCP",
-                    ...connectionInfo.driverOptions,
-                },
-                undefined,
-                this.bus
-            );
+            if (this.userConfig.legacyDriver) {
+                // Legacy path: use mongodb@3.7 driver (supports MongoDB 3.x
+                // servers incompatible with driver v7). Read-only surface only.
+                serviceProvider = LegacyServiceProvider.connect(
+                    connectionInfo.connectionString
+                );
+            } else {
+                serviceProvider = NodeDriverServiceProvider.connect(
+                    connectionInfo.connectionString,
+                    {
+                        productDocsLink: "https://github.com/mongodb-js/mongodb-mcp-server/",
+                        productName: "MongoDB MCP",
+                        ...connectionInfo.driverOptions,
+                    },
+                    undefined,
+                    this.bus
+                );
+            }
         } catch (error: unknown) {
             const errorReason = error instanceof Error ? error.message : `${error as string}`;
             this.changeState("connection-error", {

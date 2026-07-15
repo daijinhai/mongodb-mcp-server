@@ -12,7 +12,7 @@ import type {
     ConnectionStateErrored,
 } from "./connectionManager.js";
 import type { ConnectionStringInfo } from "./connectionInfo.js";
-import type { NodeDriverServiceProvider } from "@mongosh/service-provider-node-driver";
+import type { MongoDbServiceProvider } from "./serviceProvider.js";
 import { ErrorCodes, MongoDBError } from "./errors.js";
 import type { ExportsManager } from "./exportsManager.js";
 import type { Client } from "@mongodb-js/atlas-local";
@@ -172,7 +172,7 @@ export class Session extends EventEmitter<SessionEvents> {
         }
     }
 
-    get serviceProvider(): NodeDriverServiceProvider {
+    get serviceProvider(): MongoDbServiceProvider {
         if (this.isConnectedToMongoDB) {
             const state = this.connectionManager.currentConnectionState as ConnectionStateConnected;
             return state.serviceProvider;

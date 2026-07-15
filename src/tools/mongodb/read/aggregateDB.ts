@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { AggregationCursor } from "mongodb";
-import type { NodeDriverServiceProvider } from "@mongosh/service-provider-node-driver";
+import type { MongoDbServiceProvider } from "../../../common/serviceProvider.js";
 import { DBOperationArgs, MongoDBToolBase } from "../mongodbTool.js";
 import type { ToolArgs, OperationType, ToolExecutionContext, ToolResult } from "../../tool.js";
 import { formatUntrustedData } from "../../tool.js";
@@ -167,7 +167,7 @@ The maximum number of bytes to return in the response. This value is capped by t
         pipeline,
         abortSignal,
     }: {
-        provider: NodeDriverServiceProvider;
+        provider: MongoDbServiceProvider;
         database: string;
         pipeline: Document[];
         abortSignal?: AbortSignal;

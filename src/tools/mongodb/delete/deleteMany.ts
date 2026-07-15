@@ -1,5 +1,6 @@
 import { CollOperationArgs, MongoDBToolBase } from "../mongodbTool.js";
 import type { ToolArgs, OperationType, ToolResult } from "../../tool.js";
+import type { Document } from "mongodb";
 import { checkIndexUsage } from "../../../helpers/indexCheck.js";
 import { escapeMarkdown } from "../../../helpers/escapeMarkdown.js";
 import { EJSON } from "bson";
@@ -62,7 +63,7 @@ export class DeleteManyTool extends MongoDBToolBase {
             });
         }
 
-        const result = await provider.deleteMany(database, collection, filter);
+        const result = await provider.deleteMany(database, collection, filter as Document);
 
         return {
             content: [

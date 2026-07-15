@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { AggregationCursor } from "mongodb";
-import type { NodeDriverServiceProvider } from "@mongosh/service-provider-node-driver";
+import type { MongoDbServiceProvider } from "../../../common/serviceProvider.js";
 import { CollOperationArgs, MongoDBToolBase } from "../mongodbTool.js";
 import type { ToolArgs, OperationType, ToolExecutionContext, ToolResult } from "../../tool.js";
 import { formatUntrustedData } from "../../tool.js";
@@ -263,7 +263,7 @@ Note to LLM: If the entire aggregation result is required, use the "export" tool
         pipeline,
         abortSignal,
     }: {
-        provider: NodeDriverServiceProvider;
+        provider: MongoDbServiceProvider;
         database: string;
         collection: string;
         pipeline: Document[];

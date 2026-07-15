@@ -101,6 +101,17 @@ const ServerConfigSchema = z.object({
         .register(configRegistry, {
             overrideBehavior: oneWayOverride(true),
         }),
+    legacyDriver: z
+        .preprocess(parseBoolean, z.boolean())
+        .default(false)
+        .describe(
+            "When set to true, connects using the legacy mongodb@3.7 driver instead of the default mongosh provider (driver v7). " +
+                "Required for MongoDB servers older than 4.2 (e.g. 3.4, 3.6) that are incompatible with driver v7. " +
+                "Only read and metadata operations are supported in this mode; use readOnly=true together with this option."
+        )
+        .register(configRegistry, {
+            overrideBehavior: "not-allowed",
+        }),
     indexCheck: z
         .preprocess(parseBoolean, z.boolean())
         .default(false)

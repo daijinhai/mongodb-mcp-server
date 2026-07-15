@@ -41,9 +41,9 @@ export class RenameCollectionTool extends MongoDBToolBase {
         }
 
         const provider = await this.ensureConnected();
-        const result = await provider.renameCollection(database, collection, newName, {
+        const result = (await provider.renameCollection(database, collection, newName, {
             dropTarget,
-        });
+        })) as { collectionName?: string };
 
         return {
             content: [
@@ -55,7 +55,7 @@ export class RenameCollectionTool extends MongoDBToolBase {
             structuredContent: {
                 database,
                 oldCollection: collection,
-                newCollection: result.collectionName,
+                newCollection: result.collectionName ?? newName,
                 renamed: true,
             },
         };

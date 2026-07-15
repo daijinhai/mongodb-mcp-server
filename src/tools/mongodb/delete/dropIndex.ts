@@ -1,5 +1,5 @@
 import z from "zod";
-import type { NodeDriverServiceProvider } from "@mongosh/service-provider-node-driver";
+import type { MongoDbServiceProvider } from "../../../common/serviceProvider.js";
 import { CollOperationArgs, MongoDBToolBase } from "../mongodbTool.js";
 import { type ToolArgs, type OperationType, formatUntrustedData, type ToolResult } from "../../tool.js";
 import { escapeMarkdown } from "../../../helpers/escapeMarkdown.js";
@@ -39,7 +39,7 @@ export class DropIndexTool extends MongoDBToolBase {
     }
 
     private async dropClassicIndex(
-        provider: NodeDriverServiceProvider,
+        provider: MongoDbServiceProvider,
         { database, collection, indexName }: ToolArgs<typeof this.argsShape>
     ): Promise<ToolResult<typeof this.outputSchema>> {
         const result = await provider.runCommand(database, {
@@ -66,7 +66,7 @@ export class DropIndexTool extends MongoDBToolBase {
     }
 
     private async dropSearchIndex(
-        provider: NodeDriverServiceProvider,
+        provider: MongoDbServiceProvider,
         { database, collection, indexName }: ToolArgs<typeof this.argsShape>
     ): Promise<ToolResult<typeof this.outputSchema>> {
         await this.session.assertSearchSupported();

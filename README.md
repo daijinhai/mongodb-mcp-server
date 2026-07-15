@@ -442,6 +442,7 @@ The MongoDB MCP Server can be configured using multiple methods, with the follow
 | `MDB_MCP_INDEX_CHECK` / `--indexCheck`                                                         | `false`                                                                                                                                            | When set to true, enforces that query operations must use an index, rejecting queries that perform a collection scan.                                                                                                                                                                                                                    |
 | `MDB_MCP_LOG_PATH` / `--logPath`                                                               | see below\*                                                                                                                                        | Folder to store logs.                                                                                                                                                                                                                                                                                                                    |
 | `MDB_MCP_LOGGERS` / `--loggers`                                                                | `"disk,mcp"` see below\*                                                                                                                           | Comma separated values of logger types.                                                                                                                                                                                                                                                                                                  |
+| `MDB_MCP_LEGACY_DRIVER` / `--legacyDriver`                                                     | `false`                                                                                                                                            | Connect using the legacy `mongodb@3.7` driver instead of the default mongosh provider (driver v7). **Required for MongoDB servers older than 4.2** (e.g. 3.0–3.6) that are incompatible with driver v7. Only read and metadata operations are supported in this mode; use `--readOnly` together with this option.                        |
 | `MDB_MCP_MAX_BYTES_PER_QUERY` / `--maxBytesPerQuery`                                           | `16777216`                                                                                                                                         | The maximum size in bytes for results from a find or aggregate tool call. This serves as an upper bound for the responseBytesLimit parameter in those tools.                                                                                                                                                                             |
 | `MDB_MCP_MAX_DOCUMENTS_PER_QUERY` / `--maxDocumentsPerQuery`                                   | `100`                                                                                                                                              | The maximum number of documents that can be returned by a find or aggregate tool call. For the find tool, the effective limit will be the smaller of this value and the tool's limit parameter.                                                                                                                                          |
 | `MDB_MCP_MAX_SESSIONS` / `--maxSessions`                                                       | `1000`                                                                                                                                             | Maximum number of concurrent sessions the HTTP transport will hold in memory (only used when transport is 'http'). Each session holds a full server instance, transport, and timers, so choose a value based on your deployment's available memory; the default is a conservative safety net rather than a recommended production value. |
@@ -915,6 +916,46 @@ For the HTTP(S) requests handled by `@mongodb-js/devtools-proxy-support` (the At
 OIDC, and the MongoDB Assistant), the operating system's certificate store is trusted in
 addition to the bundled CAs — the same way `mongosh` does — so corporate root certificates
 installed at the OS level are picked up automatically.
+
+## Connecting to Legacy MongoDB 3.x Servers
+
+The default MongoDB driver (v7) requires **MongoDB 4.2 or newer** (wire version ≥ 8). If you need to connect to an older server (MongoDB 3.0–3.6), enable the **legacy driver** mode, which transparently routes read/metadata tool calls through `mongodb@3.7` — the last driver line supporting the legacy wire protocol.
+
+### Quick start
+
+```bash
+export MDB_MCP_CONNECTION_STRING="mongodb://user:pass@host:port/dbname?authSource=admin"
+npx mongodb-mcp-server --legacyDriver --readOnly
+```
+
+| Flag / Env | Purpose |
+|---|---|
+| `--legacyDriver` / `MDB_MCP_LEGACY_DRIVER=true` | Use the `mongodb@3.7` driver (required for MongoDB < 4.2) |
+| `--readOnly` / `MDB_MCP_READ_ONLY=true` | Restrict to read/metadata operations (recommended; write tools are not implemented in legacy mode) |
+
+### How it works
+
+- A `LegacyServiceProvider` adapter wraps `mongodb@3.7` and implements the same interface the MCP tools expect.
+- BSON values returned by the v3 driver are re-encoded into the v7 BSON format at the boundary, so the rest of the server (cursor collection, EJSON serialization, schema inference) works unchanged.
+- Atlas Search (`$search`, `$vectorSearch`) and Change Streams are not available on 3.x servers; the search capability probe short-circuits to "not supported".
+
+### Example: Claude / Cursor / Codex config (MongoDB 3.4)
+
+```json
+{
+  "mcpServers": {
+    "mongodb": {
+      "command": "npx",
+      "args": ["-y", "mongodb-mcp-server", "--legacyDriver", "--readOnly"],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb://admin:pass@host:port/db?authSource=admin"
+      }
+    }
+  }
+}
+```
+
+> **Note:** Passwords containing special characters (`@`, `:`, `/`) must be URL-encoded in the connection string (e.g. `@` → `%40`).
 
 ## 🚀Deploy on Public Clouds
 
