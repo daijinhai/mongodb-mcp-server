@@ -3,6 +3,8 @@
 
 # MongoDB MCP Server
 
+> **Fork Notice**: This is a fork of [mongodb-js/mongodb-mcp-server](https://github.com/mongodb-js/mongodb-mcp-server) that adds support for **legacy MongoDB 3.x (3.0 ~ 3.6)**. The upstream package requires MongoDB 4.2+. To use this fork, install it from npm as **`@mkmindone/mongodb-mcp-server`** and always pass **`--legacyDriver`** (and **`--readOnly`**) when connecting to MongoDB 3.x.
+
 A Model Context Protocol server for interacting with MongoDB Databases and MongoDB Atlas.
 
 ## 📚 Table of Contents
@@ -66,6 +68,24 @@ Note: The configuration file syntax can be different across clients. Please refe
 #### Option 1: Connection String
 
 You can pass your connection string via environment variables, make sure to use a valid username and password.
+
+For **MongoDB 3.x (legacy)**, use this fork from npm:
+
+```json
+{
+  "mcpServers": {
+    "MongoDB": {
+      "command": "npx",
+      "args": ["-y", "@mkmindone/mongodb-mcp-server", "--legacyDriver", "--readOnly"],
+      "env": {
+        "MDB_MCP_CONNECTION_STRING": "mongodb://localhost:27017/myDatabase"
+      }
+    }
+  }
+}
+```
+
+For MongoDB 4.2+, you can use the upstream package:
 
 ```json
 {

@@ -22,7 +22,7 @@ Server reports maximum wire version 5, but this version of the Node.js Driver re
 
 | | 原版 `mongodb-mcp-server` | **本 fork** |
 |---|---|---|
-| npm 包名 | `mongodb-mcp-server` | 同名，但需要从 GitHub 安装 |
+| npm 包名 | `mongodb-mcp-server` | `@mkmindone/mongodb-mcp-server` |
 | 支持的 MongoDB | 4.2+ | 3.0 ~ 最新 |
 | 关键参数 | 无 | `--legacyDriver` |
 | 适用场景 | 新版 MongoDB | **旧版 MongoDB 3.x** |
@@ -40,13 +40,13 @@ Server reports maximum wire version 5, but this version of the Node.js Driver re
 }
 ```
 
-**✅ 正确做法**（用本 fork 从 GitHub 安装）：
+**✅ 正确做法**（用本 fork 从 npm 安装）：
 ```json
 {
   "mcpServers": {
     "mongodb": {
       "command": "npx",
-      "args": ["-y", "github:daijinhai/mongodb-mcp-server#feat/mongodb-3.4-support", "--legacyDriver", "--readOnly"],
+      "args": ["-y", "@mkmindone/mongodb-mcp-server", "--legacyDriver", "--readOnly"],
       "env": { "MDB_MCP_CONNECTION_STRING": "mongodb://..." }
     }
   }
@@ -89,9 +89,13 @@ mongodb://admin:zwkj%40123@host:port/et?authSource=admin
 
 ### 前置准备（二选一）
 
-**方式 A：直接从 GitHub 安装运行**（推荐，最简单）
+**方式 A：直接从 npm 安装运行**（推荐，最简单）
 
-无需本地构建，`npx` 会自动从 GitHub 拉取并运行。
+```bash
+npx -y @mkmindone/mongodb-mcp-server --legacyDriver --readOnly
+```
+
+无需本地构建，`npx` 会自动从 npm 拉取并运行。
 
 **方式 B：本地克隆构建**
 
@@ -111,7 +115,7 @@ pnpm install && pnpm run build
   "mcpServers": {
     "mongodb": {
       "command": "npx",
-      "args": ["-y", "github:daijinhai/mongodb-mcp-server#feat/mongodb-3.4-support", "--legacyDriver", "--readOnly"],
+      "args": ["-y", "@mkmindone/mongodb-mcp-server", "--legacyDriver", "--readOnly"],
       "env": {
         "MDB_MCP_CONNECTION_STRING": "mongodb://admin:zwkj%40123@111.15.180.153:28018/et?authSource=admin"
       }
@@ -144,7 +148,7 @@ pnpm install && pnpm run build
   "mcpServers": {
     "mongodb": {
       "command": "npx",
-      "args": ["-y", "github:daijinhai/mongodb-mcp-server#feat/mongodb-3.4-support", "--legacyDriver", "--readOnly"],
+      "args": ["-y", "@mkmindone/mongodb-mcp-server", "--legacyDriver", "--readOnly"],
       "env": {
         "MDB_MCP_CONNECTION_STRING": "mongodb://admin:zwkj%40123@111.15.180.153:28018/et?authSource=admin"
       }
@@ -162,7 +166,7 @@ pnpm install && pnpm run build
 ```toml
 [mcp_servers.mongodb]
 command = "npx"
-args = ["-y", "github:daijinhai/mongodb-mcp-server#feat/mongodb-3.4-support", "--legacyDriver", "--readOnly"]
+args = ["-y", "@mkmindone/mongodb-mcp-server", "--legacyDriver", "--readOnly"]
 
 [mcp_servers.mongodb.env]
 MDB_MCP_CONNECTION_STRING = "mongodb://admin:zwkj%40123@111.15.180.153:28018/et?authSource=admin"
